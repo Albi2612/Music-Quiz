@@ -31,6 +31,7 @@
             justify-content: center;
         }
 
+        /* ── Layout ── */
         .container {
             display: flex;
             gap: 40px;
@@ -40,6 +41,7 @@
 
         .main-content { flex: 1; min-width: 0; }
 
+        /* ── Breadcrumb ── */
         .breadcrumb {
             font-size: 13px;
             color: var(--text-gray);
@@ -51,6 +53,7 @@
         .breadcrumb a:hover { color: var(--primary-green); }
         .breadcrumb span { color: var(--primary-green); }
 
+        /* ── Question counter ── */
         .question-counter {
             font-size: 13px;
             font-weight: 600;
@@ -68,7 +71,7 @@
             color: #1a2330;
         }
 
-        /* Options */
+        /* ── Options ── */
         .options {
             display: flex;
             flex-direction: column;
@@ -110,7 +113,6 @@
 
         .option.disabled { cursor: default; pointer-events: none; }
 
-        /* After submission states */
         .option.correct-answer {
             border-color: var(--correct);
             background-color: var(--correct-bg);
@@ -131,7 +133,7 @@
         .option.correct-answer .status-icon,
         .option.wrong-answer .status-icon { display: block; }
 
-        /* Feedback box */
+        /* ── Feedback box ── */
         .feedback-box {
             display: none;
             padding: 18px 22px;
@@ -176,8 +178,12 @@
             border-top: 1px solid rgba(0,0,0,0.08);
         }
 
-        /* Buttons */
-        .btn-row { display: flex; gap: 12px; align-items: center; }
+        /* ── Buttons ── */
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
 
         .btn {
             border: none;
@@ -206,7 +212,7 @@
         }
         .btn-next:hover { background: var(--light-green); }
 
-        /* Progress bar */
+        /* ── Progress bar ── */
         .progress-wrap { margin-bottom: 24px; }
         .progress-bar {
             height: 6px;
@@ -221,7 +227,7 @@
             transition: width 0.4s ease;
         }
 
-        /* Sidebar */
+        /* ── Sidebar (desktop) ── */
         .sidebar { width: 300px; flex-shrink: 0; }
 
         .card {
@@ -274,7 +280,47 @@
         .q-item.wrong    { background: #fff5f5; color: #7f1d1d; }
         .q-item.current  { background: var(--light-green); color: var(--primary-green); font-weight: 700; }
 
-        /* Results Screen */
+        /* ── Mobile progress strip (hidden on desktop) ── */
+        .mobile-score-strip {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border-radius: 10px;
+            padding: 10px 16px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .mobile-score-strip .score-badge { font-size: 12px; }
+
+        /* ── Collapsible sidebar on mobile ── */
+        .sidebar-toggle {
+            display: none;
+            width: 100%;
+            background: white;
+            border: 1.5px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px 18px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        .sidebar-toggle:hover { background: var(--light-green); }
+        .sidebar-toggle .toggle-icon { float: right; transition: transform 0.25s; }
+        .sidebar-toggle.open .toggle-icon { transform: rotate(180deg); }
+
+        .sidebar-collapsible { transition: max-height 0.3s ease, opacity 0.3s ease; overflow: hidden; }
+        .sidebar-collapsible.collapsed { max-height: 0; opacity: 0; }
+        .sidebar-collapsible.expanded  { max-height: 600px; opacity: 1; }
+
+        /* ── Results Screen ── */
         .results-screen {
             display: none;
             text-align: center;
@@ -317,15 +363,108 @@
             display: inline-block;
         }
         .btn-restart:hover { opacity: 0.9; }
+
+        /* ════════════════════════════════════════════
+           TABLET  (≤ 900px)
+        ════════════════════════════════════════════ */
+        @media (max-width: 900px) {
+            body { padding: 24px 16px; }
+
+            .container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            /* Sidebar moves below main content & becomes collapsible */
+            .sidebar { width: 100%; }
+
+            .sidebar-toggle { display: block; }
+
+            .mobile-score-strip { display: flex; }
+
+            h1 { font-size: 22px; margin-bottom: 20px; }
+
+            .option { font-size: 14px; padding: 14px 16px; }
+
+            .btn { padding: 13px 24px; font-size: 14px; }
+
+            .big-score { font-size: 56px; }
+            .performance-msg { font-size: 17px; }
+        }
+
+        /* ════════════════════════════════════════════
+           MOBILE  (≤ 480px)
+        ════════════════════════════════════════════ */
+        @media (max-width: 480px) {
+            body { padding: 16px 12px; }
+
+            .breadcrumb { font-size: 12px; margin-bottom: 18px; }
+
+            h1 { font-size: 19px; margin-bottom: 16px; }
+
+            .question-counter { font-size: 11px; }
+
+            .option {
+                padding: 13px 14px;
+                font-size: 14px;
+                border-radius: 8px;
+            }
+            .option .letter { width: 26px; font-size: 13px; }
+
+            .feedback-box { padding: 14px 16px; font-size: 14px; }
+            .feedback-box .feedback-title { font-size: 14px; }
+
+            /* Stack Submit / Next buttons full-width */
+            .btn-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            .btn {
+                width: 100%;
+                text-align: center;
+                padding: 14px 20px;
+                font-size: 15px;
+            }
+
+            /* Results screen */
+            .big-score { font-size: 48px; }
+            .big-score span { font-size: 24px; }
+            .results-screen h2 { font-size: 26px; }
+            .performance-msg { font-size: 15px; }
+
+            .btn-restart {
+                width: 100%;
+                display: block;
+                padding: 14px 20px;
+            }
+
+            /* Back-to-home link on results */
+            .results-screen .btn-next {
+                display: block !important;
+                width: 100%;
+                text-align: center;
+                margin: 10px 0 0 0 !important;
+                padding: 14px 20px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="container">
 
+    <!-- ── Main content ── -->
     <div class="main-content">
         <div class="breadcrumb"><a href="/">Home</a> &rsaquo; Quiz List &rsaquo; <span>Music Theory Piano Quiz</span></div>
 
         <div id="quiz-section">
+
+            <!-- Mobile score strip (visible on tablet/mobile only) -->
+            <div class="mobile-score-strip">
+                <span id="mobile-question-label">Question 1</span>
+                <span class="score-badge" id="mobile-score-badge">Score: 0</span>
+            </div>
+
             <div class="question-counter" id="question-counter">Question 1 of 30</div>
 
             <div class="progress-wrap">
@@ -358,21 +497,31 @@
         </div>
     </div>
 
+    <!-- ── Sidebar ── -->
     <div class="sidebar">
-        <div class="card">
-            <div class="card-title">
-                Questions
-                <span class="score-badge" id="score-badge">Score: 0</span>
+
+        <!-- Toggle button shown only on tablet/mobile -->
+        <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()">
+            Question Progress
+            <span class="toggle-icon">▼</span>
+        </button>
+
+        <div class="sidebar-collapsible collapsed" id="sidebar-collapsible">
+            <div class="card">
+                <div class="card-title">
+                    Questions
+                    <span class="score-badge" id="score-badge">Score: 0</span>
+                </div>
+                <div class="question-list" id="sidebar-list"></div>
             </div>
-            <div class="question-list" id="sidebar-list"></div>
         </div>
+
     </div>
 
 </div>
 
 <script>
     // ── Data Injected by Flask ───────────────────────────────────────────────
-    // The server passes safe questions (without answers) here dynamically
     const questions = {{ questions | safe }};
 
     // ── State ────────────────────────────────────────────────────────────────
@@ -382,9 +531,36 @@
     let score         = 0;
     const results     = [];
 
-    // Store user answers to send to the backend
-    window.quizAnswers = {};
+    window.quizAnswers   = {};
     window.finalQuizData = null;
+
+    // ── Sidebar toggle (mobile / tablet only) ────────────────────────────────
+    window.toggleSidebar = function() {
+        const panel  = document.getElementById('sidebar-collapsible');
+        const toggle = document.getElementById('sidebar-toggle');
+        const open   = panel.classList.contains('expanded');
+        panel.classList.toggle('expanded',  !open);
+        panel.classList.toggle('collapsed',  open);
+        toggle.classList.toggle('open',     !open);
+    };
+
+    // On desktop always show sidebar open (no toggle needed)
+    function handleResize() {
+        const panel  = document.getElementById('sidebar-collapsible');
+        const toggle = document.getElementById('sidebar-toggle');
+        if (window.innerWidth > 900) {
+            panel.classList.remove('collapsed');
+            panel.classList.add('expanded');
+            toggle.style.display = 'none';
+        } else {
+            toggle.style.display = 'block';
+            if (!panel.classList.contains('expanded')) {
+                panel.classList.add('collapsed');
+            }
+        }
+    }
+    window.addEventListener('resize', handleResize);
+    handleResize();
 
     // ── Select an option ─────────────────────────────────────────────────────
     window.selectOption = function(key) {
@@ -405,25 +581,21 @@
         submitBtn.textContent = "Checking...";
         submitBtn.disabled = true;
 
-        // Record the answer
         window.quizAnswers[q.id] = selectedKey;
 
         try {
-            // Ping app.py to evaluate the answers so far
             const response = await fetch('/submit_quiz', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ answers: window.quizAnswers })
             });
             const data = await response.json();
-            window.finalQuizData = data; // Save for final screen
+            window.finalQuizData = data;
 
-            // Find the backend evaluation for THIS specific question
             const result = data.detailed_results.find(r => r.question === q.question);
             const correct = result.is_correct;
             const correctAnswer = result.correct_answer;
 
-            // Colour all options
             document.querySelectorAll('.option').forEach(o => {
                 o.classList.add('disabled');
                 const k = o.dataset.key;
@@ -436,7 +608,6 @@
                 }
             });
 
-            // Feedback box
             const feedbackBox = document.getElementById('feedback-box');
             const feedbackTitle = document.getElementById('feedback-title');
             const feedbackExp   = document.getElementById('feedback-explanation');
@@ -453,16 +624,15 @@
                 feedbackExp.textContent = result.explanation;
             }
 
-            // Update UI
             results.push({ correct });
             updateSidebar();
 
             score = data.score;
-            document.getElementById('score-badge').textContent = `Score: ${score}`;
+            document.getElementById('score-badge').textContent        = `Score: ${score}`;
+            document.getElementById('mobile-score-badge').textContent = `Score: ${score}`;
 
-            // Swap buttons
             submitBtn.style.display = 'none';
-            submitBtn.textContent = "Submit Answer"; // reset text
+            submitBtn.textContent = "Submit Answer";
             const nextBtn = document.getElementById('next-btn');
             nextBtn.style.display = 'inline-block';
             nextBtn.textContent = currentIndex + 1 < questions.length ? 'Next Question →' : 'See Results →';
@@ -490,19 +660,18 @@
         submitted   = false;
         selectedKey = null;
 
-        const q = questions[currentIndex];
+        const q     = questions[currentIndex];
         const total = questions.length;
 
-        document.getElementById('question-counter').textContent = `Question ${currentIndex + 1} of ${total}`;
+        document.getElementById('question-counter').textContent     = `Question ${currentIndex + 1} of ${total}`;
+        document.getElementById('mobile-question-label').textContent = `Question ${currentIndex + 1} of ${total}`;
         document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
         document.getElementById('question-title').textContent = q.question;
 
-        // Hide feedback
         const fb = document.getElementById('feedback-box');
         fb.style.display = 'none';
         document.getElementById('feedback-explanation').style.display = 'block';
 
-        // Build options
         const container = document.getElementById('options-container');
         container.innerHTML = '';
         for (const [key, value] of Object.entries(q.options)) {
@@ -514,7 +683,6 @@
                 </div>`;
         }
 
-        // Reset buttons
         const submitBtn = document.getElementById('submit-btn');
         submitBtn.style.display = 'inline-block';
         submitBtn.disabled = true;
@@ -540,7 +708,6 @@
                 </div>`;
         });
 
-        // Auto-scroll to current item
         const items = list.querySelectorAll('.q-item');
         if (items[currentIndex]) items[currentIndex].scrollIntoView({ block: 'nearest' });
     }
@@ -550,13 +717,12 @@
         document.getElementById('quiz-section').style.display = 'none';
         document.getElementById('results-screen').style.display = 'block';
 
-        // Use the final data graded by Python
-        const finalData = window.finalQuizData;
+        const finalData      = window.finalQuizData;
         const totalQuestions = questions.length;
 
-        document.getElementById('result-score').innerHTML = `${finalData.score} <span>/ ${totalQuestions}</span>`;
+        document.getElementById('result-score').innerHTML      = `${finalData.score} <span>/ ${totalQuestions}</span>`;
         document.getElementById('result-percentage').textContent = `${finalData.percentage}% correct`;
-        document.getElementById('performance-msg').textContent = finalData.performance_message;
+        document.getElementById('performance-msg').textContent  = finalData.performance_message;
 
         document.getElementById('progress-fill').style.width = '100%';
     }
@@ -564,27 +730,25 @@
     // ── Restart ──────────────────────────────────────────────────────────────
     window.restartQuiz = function() {
         currentIndex = 0;
-        selectedKey = null;
-        submitted = false;
-        score = 0;
+        selectedKey  = null;
+        submitted    = false;
+        score        = 0;
         results.length = 0;
-        window.quizAnswers = {};
+        window.quizAnswers   = {};
         window.finalQuizData = null;
 
-        document.getElementById('score-badge').textContent = 'Score: 0';
-        document.getElementById('quiz-section').style.display = 'block';
-        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('score-badge').textContent        = 'Score: 0';
+        document.getElementById('mobile-score-badge').textContent = 'Score: 0';
+        document.getElementById('quiz-section').style.display     = 'block';
+        document.getElementById('results-screen').style.display   = 'none';
         loadQuestion();
     };
 
     // ── Enter key support ─────────────────────────────────────────────────────
     document.addEventListener('keydown', function(e) {
         if (e.key !== 'Enter') return;
-        if (!submitted && selectedKey) {
-            submitAnswer();
-        } else if (submitted) {
-            nextQuestion();
-        }
+        if (!submitted && selectedKey) submitAnswer();
+        else if (submitted) nextQuestion();
     });
 
     // ── Boot ──────────────────────────────────────────────────────────────────
