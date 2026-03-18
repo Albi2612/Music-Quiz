@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Theory Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-green: #2a8b65;
+            --light-green: #eef7f3;
+            --border-color: #e2e8f0;
+            --bg-color: #f7f9f8;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --correct: #16a34a;
+            --correct-bg: #f0fdf4;
+            --wrong: #dc2626;
+            --wrong-bg: #fff5f5;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-dark);
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .main-content { flex: 1; min-width: 0; }
+
+        .breadcrumb {
+            font-size: 13px;
+            color: var(--text-gray);
+            margin-bottom: 28px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .breadcrumb a { color: var(--text-gray); text-decoration: none; transition: color 0.2s; }
+        .breadcrumb a:hover { color: var(--primary-green); }
+        .breadcrumb span { color: var(--primary-green); }
+
+        .question-counter {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-gray);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            margin: 0 0 30px 0;
+            line-height: 1.4;
+            color: #1a2330;
+        }
+
+        /* Options */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            background: white;
+            transition: all 0.18s ease;
+            font-size: 15px;
+            font-weight: 500;
+            user-select: none;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #9fccb8;
+            background: #f8fdfb;
+        }
+
+        .option .letter {
+            width: 32px;
+            color: var(--text-gray);
+            font-weight: 700;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .option.selected {
+            border-color: var(--primary-green);
+            background-color: var(--light-green);
+        }
+
+        .option.disabled { cursor: default; pointer-events: none; }
+
+        /* After submission states */
+        .option.correct-answer {
+            border-color: var(--correct);
+            background-color: var(--correct-bg);
+        }
+        .option.correct-answer .letter { color: var(--correct); }
+
+        .option.wrong-answer {
+            border-color: var(--wrong);
+            background-color: var(--wrong-bg);
+        }
+        .option.wrong-answer .letter { color: var(--wrong); }
+
+        .status-icon {
+            margin-left: auto;
+            font-size: 18px;
+            display: none;
+        }
+        .option.correct-answer .status-icon,
+        .option.wrong-answer .status-icon { display: block; }
+
+        /* Feedback box */
+        .feedback-box {
+            display: none;
+            padding: 18px 22px;
+            border-radius: 10px;
+            margin-bottom: 24px;
+            font-size: 15px;
+            line-height: 1.6;
+            animation: fadeSlideIn 0.3s ease;
+        }
+
+        @keyframes fadeSlideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .feedback-box.correct {
+            background: var(--correct-bg);
+            border: 1.5px solid #86efac;
+            color: #166534;
+        }
+
+        .feedback-box.incorrect {
+            background: var(--wrong-bg);
+            border: 1.5px solid #fca5a5;
+            color: #7f1d1d;
+        }
+
+        .feedback-box .feedback-title {
+            font-weight: 700;
+            font-size: 16px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-box .explanation {
+            color: #374151;
+            font-size: 14px;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(0,0,0,0.08);
+        }
+
+        /* Buttons */
+        .btn-row { display: flex; gap: 12px; align-items: center; }
+
+        .btn {
+            border: none;
+            padding: 14px 30px;
+            border-radius: 30px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-green);
+            color: white;
+            box-shadow: 0 4px 14px rgba(42, 139, 101, 0.25);
+        }
+        .btn-submit:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-submit:disabled { background-color: #cbd5e1; cursor: not-allowed; box-shadow: none; transform: none; }
+
+        .btn-next {
+            background: white;
+            color: var(--primary-green);
+            border: 2px solid var(--primary-green);
+            display: none;
+        }
+        .btn-next:hover { background: var(--light-green); }
+
+        /* Progress bar */
+        .progress-wrap { margin-bottom: 24px; }
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-green);
+            border-radius: 99px;
+            transition: width 0.4s ease;
+        }
+
+        /* Sidebar */
+        .sidebar { width: 300px; flex-shrink: 0; }
+
+        .card {
+            background: white;
+            padding: 24px;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+        }
+
+        .card-title {
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-dark);
+        }
+
+        .score-badge {
+            background: var(--light-green);
+            color: var(--primary-green);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 3px 10px;
+            border-radius: 99px;
+        }
+
+        .question-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 480px;
+            overflow-y: auto;
+        }
+
+        .q-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background: #f9fafb;
+            font-size: 13px;
+            color: var(--text-gray);
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .q-item.correct  { background: #f0fdf4; color: #166534; }
+        .q-item.wrong    { background: #fff5f5; color: #7f1d1d; }
+        .q-item.current  { background: var(--light-green); color: var(--primary-green); font-weight: 700; }
+
+        /* Results Screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .results-screen h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            margin-bottom: 10px;
+        }
+
+        .big-score {
+            font-size: 72px;
+            font-weight: 700;
+            color: var(--primary-green);
+            line-height: 1;
+            margin: 20px 0 10px;
+        }
+
+        .big-score span { font-size: 32px; color: var(--text-gray); }
+
+        .performance-msg {
+            font-size: 20px;
+            margin: 14px 0 30px;
+        }
+
+        .btn-restart {
+            background: var(--primary-green);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            font-family: 'DM Sans', sans-serif;
+            box-shadow: 0 4px 14px rgba(42,139,101,0.25);
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-restart:hover { opacity: 0.9; }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="main-content">
+        <div class="breadcrumb"><a href="/">Home</a> &rsaquo; Quiz List &rsaquo; <span>Music Theory Piano Quiz</span></div>
+
+        <div id="quiz-section">
+            <div class="question-counter" id="question-counter">Question 1 of 30</div>
+
+            <div class="progress-wrap">
+                <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+            </div>
+
+            <h1 id="question-title">Loading Question...</h1>
+
+            <div id="feedback-box" class="feedback-box">
+                <div class="feedback-title" id="feedback-title"></div>
+                <div class="explanation" id="feedback-explanation"></div>
+            </div>
+
+            <div class="options" id="options-container"></div>
+
+            <div class="btn-row">
+                <button class="btn btn-submit" id="submit-btn" onclick="submitAnswer()" disabled>Submit Answer</button>
+                <button class="btn btn-next"   id="next-btn"   onclick="nextQuestion()">Next Question →</button>
+            </div>
+        </div>
+
+        <div class="results-screen" id="results-screen">
+            <div style="font-size:56px">🎹</div>
+            <h2>Quiz Complete!</h2>
+            <div class="big-score" id="result-score">0 <span>/ 30</span></div>
+            <div id="result-percentage" style="font-size:18px; color:var(--text-gray); margin-bottom:8px;"></div>
+            <div class="performance-msg" id="performance-msg"></div>
+            <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
+            <a href="/" class="btn-next" style="display:inline-block; margin-left:12px; padding:14px 30px; text-decoration:none; border-radius:30px;">Back to Home</a>
+        </div>
+    </div>
+
+    <div class="sidebar">
+        <div class="card">
+            <div class="card-title">
+                Questions
+                <span class="score-badge" id="score-badge">Score: 0</span>
+            </div>
+            <div class="question-list" id="sidebar-list"></div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ── Data Injected by Flask ───────────────────────────────────────────────
+    // The server passes safe questions (without answers) here dynamically
+    const questions = {{ questions | safe }};
+
+    // ── State ────────────────────────────────────────────────────────────────
+    let currentIndex  = 0;
+    let selectedKey   = null;
+    let submitted     = false;
+    let score         = 0;
+    const results     = [];
+
+    // Store user answers to send to the backend
+    window.quizAnswers = {};
+    window.finalQuizData = null;
+
+    // ── Select an option ─────────────────────────────────────────────────────
+    window.selectOption = function(key) {
+        if (submitted) return;
+        selectedKey = key;
+        document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        document.getElementById(`opt-${key}`).classList.add('selected');
+        document.getElementById('submit-btn').disabled = false;
+    };
+
+    // ── Submit answer to Flask Backend ───────────────────────────────────────
+    window.submitAnswer = async function() {
+        if (!selectedKey || submitted) return;
+        submitted = true;
+
+        const q = questions[currentIndex];
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.textContent = "Checking...";
+        submitBtn.disabled = true;
+
+        // Record the answer
+        window.quizAnswers[q.id] = selectedKey;
+
+        try {
+            // Ping app.py to evaluate the answers so far
+            const response = await fetch('/submit_quiz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ answers: window.quizAnswers })
+            });
+            const data = await response.json();
+            window.finalQuizData = data; // Save for final screen
+
+            // Find the backend evaluation for THIS specific question
+            const result = data.detailed_results.find(r => r.question === q.question);
+            const correct = result.is_correct;
+            const correctAnswer = result.correct_answer;
+
+            // Colour all options
+            document.querySelectorAll('.option').forEach(o => {
+                o.classList.add('disabled');
+                const k = o.dataset.key;
+                if (k === correctAnswer) {
+                    o.classList.add('correct-answer');
+                    o.querySelector('.status-icon').textContent = '✓';
+                } else if (k === selectedKey && !correct) {
+                    o.classList.add('wrong-answer');
+                    o.querySelector('.status-icon').textContent = '✗';
+                }
+            });
+
+            // Feedback box
+            const feedbackBox = document.getElementById('feedback-box');
+            const feedbackTitle = document.getElementById('feedback-title');
+            const feedbackExp   = document.getElementById('feedback-explanation');
+
+            feedbackBox.style.display = 'block';
+            if (correct) {
+                feedbackBox.className = 'feedback-box correct';
+                feedbackTitle.innerHTML = '✅ Good Job!';
+                feedbackExp.style.display = 'none';
+            } else {
+                feedbackBox.className = 'feedback-box incorrect';
+                feedbackTitle.innerHTML = `❌ Incorrect — the correct answer is <strong>${correctAnswer}: ${q.options[correctAnswer]}</strong>`;
+                feedbackExp.style.display = 'block';
+                feedbackExp.textContent = result.explanation;
+            }
+
+            // Update UI
+            results.push({ correct });
+            updateSidebar();
+
+            score = data.score;
+            document.getElementById('score-badge').textContent = `Score: ${score}`;
+
+            // Swap buttons
+            submitBtn.style.display = 'none';
+            submitBtn.textContent = "Submit Answer"; // reset text
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.style.display = 'inline-block';
+            nextBtn.textContent = currentIndex + 1 < questions.length ? 'Next Question →' : 'See Results →';
+
+        } catch (error) {
+            console.error("Error connecting to server:", error);
+            submitBtn.textContent = "Error! Try Again";
+            submitted = false;
+            submitBtn.disabled = false;
+        }
+    };
+
+    // ── Next question ────────────────────────────────────────────────────────
+    window.nextQuestion = function() {
+        currentIndex++;
+        if (currentIndex >= questions.length) {
+            showResults();
+        } else {
+            loadQuestion();
+        }
+    };
+
+    // ── Load question ────────────────────────────────────────────────────────
+    function loadQuestion() {
+        submitted   = false;
+        selectedKey = null;
+
+        const q = questions[currentIndex];
+        const total = questions.length;
+
+        document.getElementById('question-counter').textContent = `Question ${currentIndex + 1} of ${total}`;
+        document.getElementById('progress-fill').style.width = `${(currentIndex / total) * 100}%`;
+        document.getElementById('question-title').textContent = q.question;
+
+        // Hide feedback
+        const fb = document.getElementById('feedback-box');
+        fb.style.display = 'none';
+        document.getElementById('feedback-explanation').style.display = 'block';
+
+        // Build options
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        for (const [key, value] of Object.entries(q.options)) {
+            container.innerHTML += `
+                <div class="option" id="opt-${key}" data-key="${key}" onclick="selectOption('${key}')">
+                    <span class="letter">${key}</span>
+                    <span>${value}</span>
+                    <span class="status-icon"></span>
+                </div>`;
+        }
+
+        // Reset buttons
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.style.display = 'inline-block';
+        submitBtn.disabled = true;
+        document.getElementById('next-btn').style.display = 'none';
+
+        updateSidebar();
+    }
+
+    // ── Sidebar ──────────────────────────────────────────────────────────────
+    function updateSidebar() {
+        const list = document.getElementById('sidebar-list');
+        list.innerHTML = '';
+        questions.forEach((q, i) => {
+            let cls = '', icon = '';
+            if      (i < results.length && results[i].correct)  { cls = 'correct'; icon = '✓'; }
+            else if (i < results.length && !results[i].correct) { cls = 'wrong';   icon = '✗'; }
+            else if (i === currentIndex)                        { cls = 'current'; icon = '→'; }
+
+            list.innerHTML += `
+                <div class="q-item ${cls}">
+                    Question ${i + 1}
+                    <span>${icon}</span>
+                </div>`;
+        });
+
+        // Auto-scroll to current item
+        const items = list.querySelectorAll('.q-item');
+        if (items[currentIndex]) items[currentIndex].scrollIntoView({ block: 'nearest' });
+    }
+
+    // ── Results screen ───────────────────────────────────────────────────────
+    function showResults() {
+        document.getElementById('quiz-section').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+
+        // Use the final data graded by Python
+        const finalData = window.finalQuizData;
+        const totalQuestions = questions.length;
+
+        document.getElementById('result-score').innerHTML = `${finalData.score} <span>/ ${totalQuestions}</span>`;
+        document.getElementById('result-percentage').textContent = `${finalData.percentage}% correct`;
+        document.getElementById('performance-msg').textContent = finalData.performance_message;
+
+        document.getElementById('progress-fill').style.width = '100%';
+    }
+
+    // ── Restart ──────────────────────────────────────────────────────────────
+    window.restartQuiz = function() {
+        currentIndex = 0;
+        selectedKey = null;
+        submitted = false;
+        score = 0;
+        results.length = 0;
+        window.quizAnswers = {};
+        window.finalQuizData = null;
+
+        document.getElementById('score-badge').textContent = 'Score: 0';
+        document.getElementById('quiz-section').style.display = 'block';
+        document.getElementById('results-screen').style.display = 'none';
+        loadQuestion();
+    };
+
+    // ── Enter key support ─────────────────────────────────────────────────────
+    document.addEventListener('keydown', function(e) {
+        if (e.key !== 'Enter') return;
+        if (!submitted && selectedKey) {
+            submitAnswer();
+        } else if (submitted) {
+            nextQuestion();
+        }
+    });
+
+    // ── Boot ──────────────────────────────────────────────────────────────────
+    loadQuestion();
+</script>
+</body>
+</html>
